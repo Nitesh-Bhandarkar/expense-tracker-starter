@@ -27,8 +27,13 @@ function App() {
 
   return (
     <div className="app">
-      <h1>Finance Tracker</h1>
-      <p className="subtitle">Track your income and expenses</p>
+      <header className="app-header">
+        <div className="header-left">
+          <div className="logo-mark">◈</div>
+          <h1>Finance Tracker</h1>
+        </div>
+        <p className="subtitle">January 2025</p>
+      </header>
 
       <Summary transactions={transactions} />
       <AddTransaction onAdd={handleAdd} />
