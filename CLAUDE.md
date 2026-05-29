@@ -16,15 +16,11 @@ There are no tests in this project.
 
 ## Architecture
 
-This is a single-page React app (Vite + React 19) with all logic in one file: `src/App.jsx`.
+This is a single-page React app (Vite + React 19) split across four components:
 
-**State** lives entirely in `App` — no context, no external store:
-- `transactions` — array of `{ id, description, amount, type, category, date }`. `amount` is stored as a **string** (not a number), which causes the summary totals to concatenate instead of add — a known intentional bug for the course.
-- `description`, `amount`, `type`, `category` — controlled form inputs for adding a new transaction.
-- `filterType`, `filterCategory` — drive the filtered view of the transaction list.
+- **`App`** (`src/App.jsx`) — root component. Owns the `transactions` array (the only shared state) and passes it down. Passes an `onAdd` callback to `AddTransaction` to append new transactions.
+- **`Summary`** (`src/Summary.jsx`) — receives `transactions`, derives `totalIncome`, `totalExpenses`, and `balance` internally, and renders the three summary cards.
+- **`AddTransaction`** (`src/AddTransaction.jsx`) — owns its own form field state (`description`, `amount`, `type`, `category`). Calls `onAdd(transaction)` on submit with `amount` stored as a `parseFloat` number.
+- **`TransactionList`** (`src/TransactionList.jsx`) — receives `transactions`, owns `filterType`/`filterCategory` state internally, and renders the filtered table.
 
-**Derived values** (totalIncome, totalExpenses, balance, filteredTransactions) are computed inline on each render from `transactions` state.
-
-**Styling** is plain CSS in `src/App.css` with no CSS framework. The `.delete-btn` class exists in the CSS but the delete button is not yet wired up in the JSX — another intentional gap.
-
-The app is a course starter project; it intentionally contains a bug (string arithmetic in totals), missing delete functionality, and rough UI — these are meant to be fixed as exercises.
+There is no context, router, or external store — all state flows via props. Styling is plain CSS in `src/App.css` with no framework. The `.delete-btn` class exists in the CSS but delete functionality is not yet implemented.
