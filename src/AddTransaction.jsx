@@ -2,16 +2,19 @@ import { useState } from 'react'
 
 const categories = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
 
+const todayStr = () => new Date().toISOString().split('T')[0]
+
 function AddTransaction({ onAdd }) {
-  const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState("");
-  const [type, setType] = useState("expense");
-  const [category, setCategory] = useState("food");
+  const [description, setDescription] = useState("")
+  const [amount, setAmount] = useState("")
+  const [type, setType] = useState("expense")
+  const [category, setCategory] = useState("food")
+  const [date, setDate] = useState(todayStr)
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    const parsed = parseFloat(amount);
-    if (!description.trim() || !parsed || parsed <= 0) return;
+    e.preventDefault()
+    const parsed = parseFloat(amount)
+    if (!description.trim() || !parsed || parsed <= 0) return
 
     onAdd({
       id: Date.now(),
@@ -19,14 +22,15 @@ function AddTransaction({ onAdd }) {
       amount: parsed,
       type,
       category,
-      date: new Date().toISOString().split('T')[0],
-    });
+      date: date || todayStr(),
+    })
 
-    setDescription("");
-    setAmount("");
-    setType("expense");
-    setCategory("food");
-  };
+    setDescription("")
+    setAmount("")
+    setType("expense")
+    setCategory("food")
+    setDate(todayStr())
+  }
 
   return (
     <div className="add-transaction">
@@ -55,10 +59,15 @@ function AddTransaction({ onAdd }) {
             <option key={cat} value={cat}>{cat}</option>
           ))}
         </select>
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
         <button type="submit">Add</button>
       </form>
     </div>
-  );
+  )
 }
 
 export default AddTransaction

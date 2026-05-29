@@ -15,8 +15,17 @@ const tooltipStyle = {
   cursor: { fill: 'rgba(255,255,255,0.025)' },
 }
 
-function SpendingChart({ transactions }) {
-  const expensesByCategory = transactions
+function formatMonthLabel(ym) {
+  const [y, m] = ym.split('-')
+  return new Date(parseInt(y), parseInt(m) - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+}
+
+function SpendingChart({ transactions, filterMonth, setFilterMonth, months }) {
+  const visible = filterMonth === 'all'
+    ? transactions
+    : transactions.filter(t => t.date.startsWith(filterMonth))
+
+  const expensesByCategory = visible
     .filter(t => t.type === 'expense')
     .reduce((acc, t) => {
       acc[t.category] = (acc[t.category] || 0) + t.amount
@@ -27,38 +36,53 @@ function SpendingChart({ transactions }) {
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value)
 
-  if (data.length === 0) return null
-
   return (
     <div className="spending-chart">
-      <h2>Spending by Category</h2>
-      <ResponsiveContainer width="100%" height={240}>
-        <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-          <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
-          <XAxis
-            dataKey="name"
-            tick={{ fontSize: 11, fill: '#7878a0', fontFamily: 'Manrope' }}
-            axisLine={{ stroke: 'rgba(255,255,255,0.06)' }}
-            tickLine={false}
-          />
-          <YAxis
-            tickFormatter={(v) => `₹${v}`}
-            tick={{ fontSize: 11, fill: '#7878a0', fontFamily: 'Manrope' }}
-            axisLine={false}
-            tickLine={false}
-            width={48}
-          />
-          <Tooltip
-            formatter={(value) => [`₹${value.toFixed(2)}`, 'Spent']}
-            {...tooltipStyle}
-          />
-          <Bar dataKey="value" radius={[5, 5, 0, 0]} maxBarSize={56}>
-            {data.map((_, index) => (
-              <Cell key={index} fill={COLORS[index % COLORS.length]} fillOpacity={0.85} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <div className="chart-header">
+        <h2>Spending by Category</h2>
+        <select
+          className="month-select"
+          value={filterMonth}
+          onChange={(e) => setFilterMonth(e.target.value)}
+        >
+          <option value="all">All Time</option>
+          {months.map(m => (
+            <option key={m} value={m}>{formatMonthLabel(m)}</option>
+          ))}
+        </select>
+      </div>
+
+      {data.length === 0 ? (
+        <div className="empty-state">No expenses for this period</div>
+      ) : (
+        <ResponsiveContainer width="100%" height={240}>
+          <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+            <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
+            <XAxis
+              dataKey="name"
+              tick={{ fontSize: 11, fill: '#7878a0', fontFamily: 'Manrope' }}
+              axisLine={{ stroke: 'rgba(255,255,255,0.06)' }}
+              tickLine={false}
+            />
+            <YAxis
+              tickFormatter={(v) => `₹${v}`}
+              tick={{ fontSize: 11, fill: '#7878a0', fontFamily: 'Manrope' }}
+              axisLine={false}
+              tickLine={false}
+              width={48}
+            />
+            <Tooltip
+              formatter={(value) => [`₹${value.toFixed(2)}`, 'Spent']}
+              {...tooltipStyle}
+            />
+            <Bar dataKey="value" radius={[5, 5, 0, 0]} maxBarSize={56}>
+              {data.map((_, index) => (
+                <Cell key={index} fill={COLORS[index % COLORS.length]} fillOpacity={0.85} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      )}
     </div>
   )
 }

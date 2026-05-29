@@ -5,6 +5,8 @@ import AddTransaction from './AddTransaction'
 import TransactionList from './TransactionList'
 import SpendingChart from './SpendingChart'
 
+const currentMonth = new Date().toISOString().slice(0, 7)
+
 function App() {
   const [transactions, setTransactions] = useState([
     { id: 1, description: "Salary", amount: 5000, type: "income", category: "salary", date: "2025-01-01" },
@@ -16,6 +18,13 @@ function App() {
     { id: 7, description: "Gas", amount: 45, type: "expense", category: "transport", date: "2025-01-08" },
     { id: 8, description: "Netflix", amount: 15, type: "expense", category: "entertainment", date: "2025-01-10" },
   ]);
+
+  const [filterMonth, setFilterMonth] = useState(currentMonth)
+
+  const months = [...new Set([
+    ...transactions.map(t => t.date.slice(0, 7)),
+    currentMonth,
+  ])].sort().reverse()
 
   const handleAdd = (transaction) => {
     setTransactions(prev => [...prev, transaction]);
@@ -32,13 +41,24 @@ function App() {
           <div className="logo-mark">◈</div>
           <h1>Finance Tracker</h1>
         </div>
-        <p className="subtitle">January 2025</p>
+        <p className="subtitle">{new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
       </header>
 
       <Summary transactions={transactions} />
       <AddTransaction onAdd={handleAdd} />
-      <SpendingChart transactions={transactions} />
-      <TransactionList transactions={transactions} onDelete={handleDelete} />
+      <SpendingChart
+        transactions={transactions}
+        filterMonth={filterMonth}
+        setFilterMonth={setFilterMonth}
+        months={months}
+      />
+      <TransactionList
+        transactions={transactions}
+        onDelete={handleDelete}
+        filterMonth={filterMonth}
+        setFilterMonth={setFilterMonth}
+        months={months}
+      />
     </div>
   );
 }

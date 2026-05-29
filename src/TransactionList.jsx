@@ -21,11 +21,18 @@ function formatAmount(amount) {
   return '₹' + amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-function TransactionList({ transactions, onDelete }) {
+function formatMonthLabel(ym) {
+  const [y, m] = ym.split('-')
+  return new Date(parseInt(y), parseInt(m) - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+}
+
+function TransactionList({ transactions, onDelete, filterMonth, setFilterMonth, months }) {
   const [filterType, setFilterType] = useState('all')
   const [filterCategory, setFilterCategory] = useState('all')
 
-  let filtered = transactions
+  let filtered = [...transactions]
+    .sort((a, b) => b.date.localeCompare(a.date))
+  if (filterMonth !== 'all') filtered = filtered.filter(t => t.date.startsWith(filterMonth))
   if (filterType !== 'all') filtered = filtered.filter(t => t.type === filterType)
   if (filterCategory !== 'all') filtered = filtered.filter(t => t.category === filterCategory)
 
@@ -34,6 +41,12 @@ function TransactionList({ transactions, onDelete }) {
       <div className="transactions-header">
         <h2>Transactions</h2>
         <div className="filters">
+          <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)}>
+            <option value="all">All Time</option>
+            {months.map(m => (
+              <option key={m} value={m}>{formatMonthLabel(m)}</option>
+            ))}
+          </select>
           <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
             <option value="all">All Types</option>
             <option value="income">Income</option>
