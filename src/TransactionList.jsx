@@ -79,7 +79,7 @@ function TransactionList({ transactions, onDelete }) {
                 <td>
                   <button
                     className="delete-btn"
-                    title="Delete"
+                    aria-label={`Delete ${t.description}`}
                     onClick={() => {
                       if (window.confirm('Delete this transaction?')) onDelete(t.id)
                     }}

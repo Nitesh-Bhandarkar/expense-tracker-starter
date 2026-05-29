@@ -10,12 +10,13 @@ function AddTransaction({ onAdd }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!description || !amount) return;
+    const parsed = parseFloat(amount);
+    if (!description.trim() || !parsed || parsed <= 0) return;
 
     onAdd({
       id: Date.now(),
-      description,
-      amount: parseFloat(amount),
+      description: description.trim(),
+      amount: parsed,
       type,
       category,
       date: new Date().toISOString().split('T')[0],
@@ -40,6 +41,8 @@ function AddTransaction({ onAdd }) {
         <input
           type="number"
           placeholder="Amount"
+          min="0.01"
+          step="0.01"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
